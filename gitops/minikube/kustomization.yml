@@ -1,0 +1,114 @@
+﻿apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: boutique
+
+resources:
+  - ../namespace.yml
+  - ../secrets.yml
+  - ../k8s/database/statefulset.yml
+  - ../k8s/database/service.yml
+  - ../k8s/backend/gateway.yml
+  - ../k8s/backend/auth.yml
+  - ../k8s/backend/product-service.yml
+  - ../k8s/backend/order-service.yml
+  - ../k8s/backend/orders.yml
+  - ../k8s/backend/user-service.yml
+  - ../k8s/frontend/deployment.yml
+
+configMapGenerator:
+  - name: boutique-db-dump
+    files:
+      - ../k8s/database/boutique_full.sql
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patches:
+  - target:
+      kind: StatefulSet
+      name: boutique-postgres
+    patch: |-
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/storageClassName
+        value: standard
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 1Gi
+
+  - target:
+      kind: Deployment
+      name: auth
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-auth:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: gateway
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-gateway:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: orders
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-orders:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: order-service
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-order-service:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: product-service
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-product-service:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: user-service
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-user-service:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+  - target:
+      kind: Deployment
+      name: frontend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: boutique-frontend:local
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
