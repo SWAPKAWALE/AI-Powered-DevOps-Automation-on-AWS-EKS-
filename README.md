@@ -158,3 +158,49 @@ Once you implement the project:
 | Log Forwarding | AWS Fluent Bit → CloudWatch |
 | AIOps | AWS Bedrock Agent (Kira) |
 | AI Assistant | Claude Code + MCP Servers |
+
+---
+
+## No-AWS Local DevOps Implementation
+
+This fork includes a cost-free local DevOps implementation of the boutique microservices platform. The original project is AWS EKS and Bedrock ready, but this version validates the core DevOps workflow locally without using paid AWS resources.
+
+### Completed Capabilities
+
+- Local Docker Compose deployment for the microservices application
+- PostgreSQL database initialization and product seed data fix
+- React frontend running locally
+- Prometheus metrics endpoint validation
+- Grafana available for local observability
+- GitHub Actions No-AWS CI pipeline
+- Local Kubernetes deployment using Minikube
+- Argo CD GitOps continuous delivery on Minikube
+- GitOps sync validation through Argo CD
+- Local No-AWS AIOps health analyzer for Kubernetes health checks
+
+### CI/CD Flow
+
+Git push -> GitHub Actions CI -> Docker build validation -> Minikube Kubernetes manifests -> Argo CD GitOps sync -> Boutique app running locally
+
+### Local Kubernetes Stack
+
+- Kubernetes: Minikube
+- Continuous Delivery: Argo CD
+- Namespace: boutique
+- Application: boutique-minikube
+- Frontend: http://localhost:3000 using kubectl port-forward
+- Gateway metrics: http://localhost:3001/metrics using kubectl port-forward
+
+### Run Local AIOps Health Check
+
+PowerShell command:
+
+python .\projects\local-aiops\aiops_health_check.py
+
+The report is generated at:
+
+projects/local-aiops/reports/cluster-health-report.md
+
+### Honest Scope
+
+This project was completed without AWS deployment to avoid cloud charges. The architecture remains AWS EKS and Bedrock ready, while the implemented version demonstrates CI, Kubernetes deployment, GitOps CD, observability, and AIOps locally.
