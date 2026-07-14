@@ -1,6 +1,6 @@
-# AI-Powered DevOps Automation — No-AWS Local Edition
+﻿# AI-Powered DevOps Automation â€” No-AWS Local Edition
 
-![Local No-AWS CI](https://github.com/SWAPKAWALE/AI-Powered-DevOps-Automation-on-AWS-EKS-/actions/workflows/local-ci.yml/badge.svg)
+![Local No-AWS CI](https://github.com/SWAPKAWALE/microservices-devops-aiops-platform/actions/workflows/local-ci.yml/badge.svg)
 
 A complete DevOps + AIOps project for a boutique microservices application.
 
@@ -130,37 +130,37 @@ sequenceDiagram
 
 ```text
 .
-├── .github/
-│   └── workflows/
-│       └── local-ci.yml
-│
-├── docs/
-│   ├── claude-setup.md
-│   ├── part1-system-design.md
-│   └── part2-workflow.md
-│
-├── gitops/
-│   ├── argocd/
-│   │   └── boutique-minikube-app.yml
-│   ├── minikube/
-│   │   └── kustomization.yml
-│   ├── k8s/
-│   │   ├── backend/
-│   │   ├── database/
-│   │   └── frontend/
-│   └── kustomization.yml
-│
-├── projects/
-│   ├── boutique-microservices/
-│   ├── local-aiops/
-│   │   ├── aiops_health_check.py
-│   │   ├── README.md
-│   │   └── reports/
-│   │       └── cluster-health-report.md
-│   ├── aiops-assistant/
-│   └── Infrastructure/
-│
-└── README.md
+â”œâ”€â”€ .github/
+â”‚   â””â”€â”€ workflows/
+â”‚       â””â”€â”€ local-ci.yml
+â”‚
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ claude-setup.md
+â”‚   â”œâ”€â”€ part1-system-design.md
+â”‚   â””â”€â”€ part2-workflow.md
+â”‚
+â”œâ”€â”€ gitops/
+â”‚   â”œâ”€â”€ argocd/
+â”‚   â”‚   â””â”€â”€ boutique-minikube-app.yml
+â”‚   â”œâ”€â”€ minikube/
+â”‚   â”‚   â””â”€â”€ kustomization.yml
+â”‚   â”œâ”€â”€ k8s/
+â”‚   â”‚   â”œâ”€â”€ backend/
+â”‚   â”‚   â”œâ”€â”€ database/
+â”‚   â”‚   â””â”€â”€ frontend/
+â”‚   â””â”€â”€ kustomization.yml
+â”‚
+â”œâ”€â”€ projects/
+â”‚   â”œâ”€â”€ boutique-microservices/
+â”‚   â”œâ”€â”€ local-aiops/
+â”‚   â”‚   â”œâ”€â”€ aiops_health_check.py
+â”‚   â”‚   â”œâ”€â”€ README.md
+â”‚   â”‚   â””â”€â”€ reports/
+â”‚   â”‚       â””â”€â”€ cluster-health-report.md
+â”‚   â”œâ”€â”€ aiops-assistant/
+â”‚   â””â”€â”€ Infrastructure/
+â”‚
+â””â”€â”€ README.md
 ```
 
 ---
@@ -253,7 +253,7 @@ Start Minikube:
 minikube start --driver=docker --cpus=3 --memory=4096
 ```
 
-Point Docker to Minikube’s Docker environment:
+Point Docker to Minikubeâ€™s Docker environment:
 
 ```powershell
 minikube docker-env --shell powershell | Invoke-Expression
@@ -551,3 +551,4 @@ Built a No-AWS DevOps automation platform for a microservices e-commerce app usi
 This project demonstrates a complete local DevOps workflow for a microservices application.
 
 GitHub Actions validates the build, Minikube runs the Kubernetes cluster locally, Argo CD continuously syncs Kubernetes manifests from Git, Prometheus/Grafana provide observability, and the local AIOps analyzer generates Kubernetes health reports without requiring AWS Bedrock or paid cloud resources.
+

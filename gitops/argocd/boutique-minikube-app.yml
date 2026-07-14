@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/SWAPKAWALE/AI-Powered-DevOps-Automation-on-AWS-EKS-
+    repoURL: https://github.com/SWAPKAWALE/microservices-devops-aiops-platform
     targetRevision: main
     path: gitops/minikube
 
@@ -21,3 +21,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+
