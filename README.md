@@ -6,6 +6,14 @@ A complete DevOps + AIOps project for a boutique microservices application.
 
 This fork keeps the original AWS EKS and AWS Bedrock architecture as a future-ready reference, but the completed implementation runs locally with zero AWS cost using Docker, GitHub Actions, Minikube, Argo CD, Prometheus/Grafana, and a local AIOps health analyzer.
 
+## Architecture
+
+![No-AWS Local DevOps + AIOps Architecture](docs/assets/no-aws-local-devops-aiops-architecture.png)
+
+## Project Screenshots
+
+![Project Screenshots](docs/assets/project-screenshots-showcase.png)
+
 ---
 
 ## Project Summary
