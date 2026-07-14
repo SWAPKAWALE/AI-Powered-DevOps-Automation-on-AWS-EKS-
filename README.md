@@ -1,206 +1,545 @@
-# DevOps + AIOps Series
+# AI-Powered DevOps Automation — No-AWS Local Edition
 
-> A full end-to-end DevOps project with AIOps integration — so you can connect the dots between how AI is helping automate DevOps tasks today.
+![Local No-AWS CI](https://github.com/SWAPKAWALE/AI-Powered-DevOps-Automation-on-AWS-EKS-/actions/workflows/local-ci.yml/badge.svg)
 
----
+A complete DevOps + AIOps project for a boutique microservices application.
 
-## Welcome
-
-Hey everyone!
-
-Welcome to my DevOps + AI series where we build an end-to-end DevOps project with an AIOps integration.
-
-A lot of you have been asking: *"when are you going to share a full DevOps project?"*
-
-Well — here we are.
-
-In this series we will:
-
-- Build microservices locally
-- Use Claude and AI tools to assist development
-- Deploy everything step by step
-- Migrate the system to the cloud on AWS EKS
-- Set up a full CI/CD pipeline with GitHub Actions
-- Implement GitOps workflows with ArgoCD
-- Integrate AIOps capabilities with AWS Bedrock
-
-By the end of this series, you won't just know tools — you'll understand how real DevOps systems are designed and deployed.
+This fork keeps the original AWS EKS and AWS Bedrock architecture as a future-ready reference, but the completed implementation runs locally with zero AWS cost using Docker, GitHub Actions, Minikube, Argo CD, Prometheus/Grafana, and a local AIOps health analyzer.
 
 ---
 
-## Repository Structure
+## Project Summary
 
+This project demonstrates how a microservices application can move through a real DevOps workflow:
+
+- Build and run locally with Docker Compose
+- Validate builds with GitHub Actions CI
+- Deploy to Kubernetes using Minikube
+- Continuously sync Kubernetes manifests using Argo CD GitOps
+- Monitor the system using Prometheus/Grafana
+- Analyze Kubernetes health using a local No-AWS AIOps script
+
+No AWS resources were deployed, so the project avoids cloud cost while still showing a realistic CI/CD, Kubernetes, GitOps, observability, and AIOps workflow.
+
+---
+
+## Final Implementation Status
+
+| Capability | Tool / Technology | Status |
+|---|---|---|
+| Local microservices deployment | Docker Compose | Completed |
+| Frontend application | React | Completed |
+| Backend microservices | Node.js | Completed |
+| Database | PostgreSQL | Completed |
+| Database seed/restore | SQL + Kubernetes Job | Completed |
+| CI pipeline | GitHub Actions | Completed |
+| Kubernetes deployment | Minikube | Completed |
+| GitOps continuous delivery | Argo CD | Completed |
+| Manifest customization | Kustomize | Completed |
+| Metrics endpoint | Prometheus format | Completed |
+| Local dashboards | Grafana | Completed |
+| AIOps health analyzer | Python + kubectl | Completed |
+| AWS EKS deployment | Future-ready only | Not deployed to avoid cost |
+| AWS Bedrock AIOps | Future-ready only | Replaced with local analyzer |
+
+---
+
+## High-Level Architecture
+
+```mermaid
+flowchart TD
+    A[Developer Pushes Code] --> B[GitHub Actions CI]
+    B --> C[Docker Compose Validation]
+    B --> D[Backend Docker Image Build Validation]
+    B --> E[React Frontend Build Validation]
+
+    C --> F[GitHub Repository]
+    D --> F
+    E --> F
+
+    F --> G[Argo CD]
+    G --> H[Minikube Kubernetes Cluster]
+
+    H --> I[Frontend Service]
+    H --> J[Gateway Service]
+    H --> K[Backend Microservices]
+    H --> L[PostgreSQL]
+
+    J --> M[Prometheus Metrics]
+    M --> N[Grafana]
+
+    H --> O[Local AIOps Health Analyzer]
+    G --> O
+    O --> P[Markdown Health Report]
 ```
-DevOps-Practice-Guide/
-├── docs/
-│   ├── part1-system-design.md     # System design foundations (Part 1)
-│   ├── part2-workflow.md          # Full workflow with AIOps (Part 2)
-│   └── claude-setup.md            # Claude Code + MCP server setup
-├── projects/
-│   ├── README.md                  # EKS deployment guide (Part 3)
-│   ├── boutique-microservices/    # The application (7 services)
-│   ├── Infrastructure/            # Terraform for AWS provisioning
-│   └── aiops-assistant/           # Bedrock Agent — Kira (Part 4)
-├── gitops/
-│   ├── argo-cd.yml                # ArgoCD Application manifest
-│   ├── kustomization.yml          # Kustomize entry point
-│   └── k8s/                       # All Kubernetes manifests
-└── .github/
-    └── workflows/ci.yml           # GitHub Actions CI pipeline
+
+---
+
+## CI/CD and GitOps Flow
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant GitHub as GitHub Repository
+    participant CI as GitHub Actions CI
+    participant Argo as Argo CD
+    participant K8s as Minikube Kubernetes
+    participant App as Boutique App
+
+    Dev->>GitHub: Push code
+    GitHub->>CI: Trigger CI workflow
+    CI->>CI: Validate Docker Compose
+    CI->>CI: Build backend images
+    CI->>CI: Build React frontend
+    CI-->>GitHub: CI passed
+    Argo->>GitHub: Watch gitops/minikube
+    Argo->>K8s: Sync Kubernetes manifests
+    K8s->>App: Run microservices
+    Argo-->>Dev: Synced + Healthy
 ```
-
----
-
-## Series Structure
-
-### Claude Setup — AI Assistant Configuration
-[`docs/claude-setup.md`](docs/claude-setup.md)
-
-Before jumping into the project, this step walks through how Claude Code is configured as the AI assistant throughout this series.
-
-Three things are set up:
-
-**CLAUDE.md** — a project instruction file at the repo root that Claude reads automatically at the start of every session. It puts Claude in safe execution mode: explain what you're about to do and why before taking any action. This is important when working with live AWS infrastructure where silent commands can have real consequences.
-
-**MCP Servers** — background processes that extend Claude's built-in capabilities. Four servers are configured in `~/.claude/settings.json`:
-
-| Server | What it unlocks |
-|--------|----------------|
-| `awslabs.eks-mcp-server` | Query EKS clusters, inspect pods, stream logs, apply manifests |
-| `awslabs.terraform-mcp-server` | Run Terraform commands, search provider docs, run Checkov scans |
-| `awslabs.aws-pricing-mcp-server` | Live AWS pricing lookups and cost analysis reports |
-| `awslabs.core-mcp-server` | MCP orchestration layer (deprecated, kept for compatibility) |
-
-**Skills** — domain-specific knowledge packs that improve how Claude reasons about certain topics. The `terraform-skill` is installed, giving Claude deeper context for Terraform module patterns, testing strategies, security scanning, and CI/CD workflows specific to infrastructure-as-code.
-
----
-
-### Part 1 — System Design Foundations
-[`docs/part1-system-design.md`](docs/part1-system-design.md)
-
-We start with system design concepts specifically for cloud and DevOps. This is important whether you're a beginner, intermediate, or senior engineer — because companies don't choose tools randomly. They think about architecture patterns, deployment strategies, scalability, reliability, and cost tradeoffs.
-
-We cover 12 core system design pillars used in modern DevOps architectures, and connect each one directly to something running in this project.
-
----
-
-### Part 2 — Understanding the Workflow
-[`docs/part2-workflow.md`](docs/part2-workflow.md)
-
-Before writing any code or deployment configs, you need to understand how the entire system flows:
-
-- What services we're building and how they communicate
-- How the pipeline works
-- How code moves from developer → CI → deployment → production → AIOps
-
-This is where the full picture comes together — including how AI fits into the workflow.
-
----
-
-### Part 3 — DevOps Project Implementation
-[`projects/README.md`](projects/README.md)
-
-Then we actually build the project. You'll see:
-
-- Docker containers and Docker Compose
-- Kubernetes deployments on EKS
-- CI/CD pipelines with GitHub Actions
-- GitOps automation with ArgoCD
-- Infrastructure provisioning with Terraform
-- Observability with Prometheus and Grafana
-
----
-
-### Part 4 — AIOps Integration
-[`projects/aiops-assistant/README.md`](projects/aiops-assistant/README.md)
-
-Finally, we explore how AI helps with:
-
-- Monitoring and anomaly detection
-- Log analysis at scale
-- Incident response automation
-- DevOps troubleshooting
-
-Because modern DevOps is no longer just automation — it's **automation + intelligence**.
-
----
-
-## Bonus Challenge
-
-You'll get access to this entire repository.
-
-But there's a catch.
-
-The repository includes **intentional issues and troubleshooting tasks**.
-
-Why? Because AI has made things easier. But if you want to grow as an engineer, you must learn how to break systems, debug systems, and fix systems.
-
-Once you implement the project:
-
-1. Fork the repository
-2. Deploy the system
-3. Troubleshoot the issues
-4. Share what you learned — and tag me so I know you're building along
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Application | React, Node.js, PostgreSQL |
+|---|---|
+| Frontend | React |
+| Backend | Node.js microservices |
+| Database | PostgreSQL |
 | Containers | Docker, Docker Compose |
-| Orchestration | Kubernetes (AWS EKS) |
-| Infrastructure | Terraform |
-| CI/CD | GitHub Actions |
-| GitOps | ArgoCD + Kustomize |
-| Monitoring | Prometheus + Grafana |
-| Log Forwarding | AWS Fluent Bit → CloudWatch |
-| AIOps | AWS Bedrock Agent (Kira) |
-| AI Assistant | Claude Code + MCP Servers |
+| CI | GitHub Actions |
+| Kubernetes | Minikube |
+| GitOps / CD | Argo CD |
+| Kubernetes customization | Kustomize |
+| Monitoring | Prometheus, Grafana |
+| AIOps | Local Python health analyzer |
+| Cloud-readiness | AWS EKS, AWS Bedrock, Terraform references retained |
 
 ---
 
-## No-AWS Local DevOps Implementation
+## Repository Structure
 
-This fork includes a cost-free local DevOps implementation of the boutique microservices platform. The original project is AWS EKS and Bedrock ready, but this version validates the core DevOps workflow locally without using paid AWS resources.
+```text
+.
+├── .github/
+│   └── workflows/
+│       └── local-ci.yml
+│
+├── docs/
+│   ├── claude-setup.md
+│   ├── part1-system-design.md
+│   └── part2-workflow.md
+│
+├── gitops/
+│   ├── argocd/
+│   │   └── boutique-minikube-app.yml
+│   ├── minikube/
+│   │   └── kustomization.yml
+│   ├── k8s/
+│   │   ├── backend/
+│   │   ├── database/
+│   │   └── frontend/
+│   └── kustomization.yml
+│
+├── projects/
+│   ├── boutique-microservices/
+│   ├── local-aiops/
+│   │   ├── aiops_health_check.py
+│   │   ├── README.md
+│   │   └── reports/
+│   │       └── cluster-health-report.md
+│   ├── aiops-assistant/
+│   └── Infrastructure/
+│
+└── README.md
+```
 
-### Completed Capabilities
+---
 
-- Local Docker Compose deployment for the microservices application
-- PostgreSQL database initialization and product seed data fix
-- React frontend running locally
-- Prometheus metrics endpoint validation
-- Grafana available for local observability
-- GitHub Actions No-AWS CI pipeline
-- Local Kubernetes deployment using Minikube
-- Argo CD GitOps continuous delivery on Minikube
-- GitOps sync validation through Argo CD
-- Local No-AWS AIOps health analyzer for Kubernetes health checks
+## Application Services
 
-### CI/CD Flow
+| Service | Purpose | Local Port / Access |
+|---|---|---|
+| Frontend | React UI for boutique app | `localhost:3000` |
+| Gateway | API gateway and metrics endpoint | `localhost:3001` |
+| Auth Service | Authentication service | Internal Kubernetes service |
+| Product Service | Product catalog API | Internal Kubernetes service |
+| Orders Service | Orders API | Internal Kubernetes service |
+| Order Management Service | Order management logic | Internal Kubernetes service |
+| User Service | User profile service | Internal Kubernetes service |
+| PostgreSQL | Application database | Internal Kubernetes service |
+| Prometheus | Metrics collection | `localhost:9090` in Docker Compose |
+| Grafana | Dashboards | `localhost:3007` in Docker Compose |
+| Argo CD | GitOps continuous delivery | `localhost:8080` via port-forward |
 
-Git push -> GitHub Actions CI -> Docker build validation -> Minikube Kubernetes manifests -> Argo CD GitOps sync -> Boutique app running locally
+---
 
-### Local Kubernetes Stack
+## GitHub Actions CI
 
-- Kubernetes: Minikube
-- Continuous Delivery: Argo CD
-- Namespace: boutique
-- Application: boutique-minikube
-- Frontend: http://localhost:3000 using kubectl port-forward
-- Gateway metrics: http://localhost:3001/metrics using kubectl port-forward
+The No-AWS CI workflow runs on every push and pull request to `main`.
 
-### Run Local AIOps Health Check
+Workflow file:
 
-PowerShell command:
+```text
+.github/workflows/local-ci.yml
+```
 
+The workflow validates:
+
+- Docker Compose configuration
+- Backend Docker image builds
+- React frontend dependency installation
+- React frontend production build
+
+Current workflow:
+
+```text
+Local No-AWS CI
+```
+
+Expected result:
+
+```text
+Passed / Green
+```
+
+---
+
+## Local Docker Compose Setup
+
+Go to the application folder:
+
+```powershell
+cd projects\boutique-microservices
+```
+
+Start the app:
+
+```powershell
+docker compose -f docker-compose.yml up -d --build
+```
+
+Useful local URLs:
+
+```text
+Frontend: http://localhost:3000
+Gateway metrics: http://localhost:3001/metrics
+Prometheus: http://localhost:9090
+Grafana: http://localhost:3007
+```
+
+Stop Docker Compose:
+
+```powershell
+docker compose -f docker-compose.yml down
+```
+
+---
+
+## Local Kubernetes with Minikube
+
+Start Minikube:
+
+```powershell
+minikube start --driver=docker --cpus=3 --memory=4096
+```
+
+Point Docker to Minikube’s Docker environment:
+
+```powershell
+minikube docker-env --shell powershell | Invoke-Expression
+```
+
+Build local images:
+
+```powershell
+docker build -t boutique-auth:local .\projects\boutique-microservices\backend\services\auth
+docker build -t boutique-gateway:local .\projects\boutique-microservices\backend\services\gateway
+docker build -t boutique-orders:local .\projects\boutique-microservices\backend\services\orders
+docker build -t boutique-order-service:local .\projects\boutique-microservices\backend\services\order-service
+docker build -t boutique-product-service:local .\projects\boutique-microservices\backend\services\product-service
+docker build -t boutique-user-service:local .\projects\boutique-microservices\backend\services\user-service
+docker build -t boutique-frontend:local .\projects\boutique-microservices\frontend
+```
+
+Apply the Minikube overlay:
+
+```powershell
+kubectl kustomize --load-restrictor=LoadRestrictionsNone .\gitops\minikube | kubectl apply -f -
+```
+
+Restore/seed the database:
+
+```powershell
+kubectl apply -f .\gitops\k8s\database\restore-job.yml
+kubectl wait --for=condition=complete job/boutique-db-restore -n boutique --timeout=180s
+```
+
+Check application pods:
+
+```powershell
+kubectl get pods -n boutique
+```
+
+Expected:
+
+```text
+auth                         Running
+boutique-postgres            Running
+frontend                     Running
+gateway                      Running
+order-service                Running
+orders                       Running
+product-service              Running
+user-service                 Running
+boutique-db-restore          Completed
+```
+
+---
+
+## Access the Application from Minikube
+
+Frontend:
+
+```powershell
+kubectl port-forward svc/frontend 3000:3000 -n boutique
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+Gateway:
+
+```powershell
+kubectl port-forward svc/gateway 3001:3001 -n boutique
+```
+
+Open:
+
+```text
+http://localhost:3001/metrics
+http://localhost:3001/api/products
+```
+
+---
+
+## Argo CD GitOps Setup
+
+Argo CD is used for GitOps-based continuous delivery.
+
+Application manifest:
+
+```text
+gitops/argocd/boutique-minikube-app.yml
+```
+
+It watches:
+
+```text
+gitops/minikube
+```
+
+Expected Argo CD application status:
+
+```text
+Synced
+Healthy
+```
+
+Check with:
+
+```powershell
+kubectl get applications -n argocd
+kubectl get application boutique-minikube -n argocd -o wide
+```
+
+---
+
+## Argo CD UI
+
+Port-forward Argo CD:
+
+```powershell
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Open:
+
+```text
+https://localhost:8080
+```
+
+Username:
+
+```text
+admin
+```
+
+Get password:
+
+```powershell
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | %{ [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) }
+```
+
+---
+
+## Local No-AWS AIOps Health Analyzer
+
+The local AIOps analyzer checks Kubernetes and Argo CD health without AWS Bedrock.
+
+Script:
+
+```text
+projects/local-aiops/aiops_health_check.py
+```
+
+Run:
+
+```powershell
 python .\projects\local-aiops\aiops_health_check.py
+```
 
-The report is generated at:
+Generated report:
 
+```text
 projects/local-aiops/reports/cluster-health-report.md
+```
 
-### Honest Scope
+The report includes:
 
-This project was completed without AWS deployment to avoid cloud charges. The architecture remains AWS EKS and Bedrock ready, while the implemented version demonstrates CI, Kubernetes deployment, GitOps CD, observability, and AIOps locally.
+- Overall health status
+- Argo CD sync and health status
+- Boutique pod status
+- Restart counts
+- CrashLoopBackOff/Error detection
+- Recent Kubernetes events
+- Incident-style recommendation
+
+### AIOps Status Levels
+
+| Status | Meaning |
+|---|---|
+| `HEALTHY` | Application is running normally |
+| `WATCH` | Application is running, but warnings or restart counts should be monitored |
+| `ATTENTION_REQUIRED` | One or more components are unhealthy |
+
+Example output:
+
+```text
+Overall status: WATCH
+Argo CD: Synced and Healthy
+Recommendation: Monitor pods because restart counts are elevated
+```
+
+---
+
+## Operational Validation Completed
+
+The following validations were completed:
+
+| Test | Result |
+|---|---|
+| Docker Compose app started locally | Passed |
+| Products page showed seeded products | Passed |
+| Gateway metrics endpoint returned Prometheus metrics | Passed |
+| Grafana opened locally | Passed |
+| GitHub Actions CI passed | Passed |
+| Minikube pods reached Running state | Passed |
+| Products API worked through Kubernetes port-forward | Passed |
+| Argo CD showed Synced + Healthy | Passed |
+| GitOps validation sync completed | Passed |
+| Local AIOps analyzer generated health report | Passed |
+
+---
+
+## No-AWS Scope
+
+This implementation intentionally avoids AWS deployment to prevent cloud charges.
+
+Completed locally:
+
+- Docker Compose deployment
+- GitHub Actions CI
+- Minikube Kubernetes deployment
+- Argo CD GitOps CD
+- Prometheus/Grafana observability
+- Local AIOps health analyzer
+
+Optional future AWS scope:
+
+- AWS EKS deployment
+- AWS ECR image publishing
+- Terraform AWS infrastructure provisioning
+- AWS Bedrock Agent integration
+- CloudWatch log forwarding
+
+The project is AWS-ready, but the completed implementation proves the DevOps workflow locally at zero cloud cost.
+
+---
+
+## Troubleshooting Notes
+
+### Minikube API timeout
+
+If `kubectl` shows a TLS handshake timeout, Minikube may be overloaded.
+
+Try:
+
+```powershell
+minikube stop
+minikube start --driver=docker --cpus=3 --memory=4096
+```
+
+Then check:
+
+```powershell
+kubectl get nodes
+kubectl get pods -n boutique
+kubectl get applications -n argocd
+```
+
+### Port-forward not working
+
+`localhost` URLs only work while the related port-forward command is running.
+
+Frontend:
+
+```powershell
+kubectl port-forward svc/frontend 3000:3000 -n boutique
+```
+
+Argo CD:
+
+```powershell
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+### Completed restore job
+
+The database restore pod showing `Completed` is normal.
+
+```text
+boutique-db-restore   Completed
+```
+
+It is a Kubernetes Job, so it should finish after restoring/creating database content.
+
+---
+
+## Resume Bullet
+
+```text
+Built a No-AWS DevOps automation platform for a microservices e-commerce app using Docker, GitHub Actions CI, Minikube Kubernetes, Argo CD GitOps CD, Prometheus/Grafana observability, and a local AIOps health analyzer.
+```
+
+---
+
+## Interview Summary
+
+This project demonstrates a complete local DevOps workflow for a microservices application.
+
+GitHub Actions validates the build, Minikube runs the Kubernetes cluster locally, Argo CD continuously syncs Kubernetes manifests from Git, Prometheus/Grafana provide observability, and the local AIOps analyzer generates Kubernetes health reports without requiring AWS Bedrock or paid cloud resources.
